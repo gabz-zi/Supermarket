@@ -14,8 +14,13 @@ public class Receipt implements Serializable {
     private final String cashierId;
     private final LocalDate date;
     private final Map<Product, Integer> products;
+    //this is final as in the end those are the products that the customer has paid for
+    //and if he decides he needs something in the last moment, since he has already paid for the previous items
+    //and the receipt has been already issued, he will have to be given a new one
     private final BigDecimal totalAmount;
 
+    //we don't add any validations here as we've checked the customer and cashier before
+    //creating the receipt in the processPurchase() method in the CashierService
     public Receipt(Customer customer, String cashierId, BigDecimal totalAmount) {
         this.id = UUID.randomUUID().toString();;
         this.cashierId = cashierId;

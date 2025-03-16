@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public class Product implements Sellable, Serializable {
+public class Product implements Serializable {
     private final String id;
     private final String name;
     private BigDecimal basePrice;
@@ -29,10 +29,6 @@ public class Product implements Sellable, Serializable {
         this.category = category;
     }
 
-    @Override
-    public BigDecimal getSellingPrice(ProductService productService) {
-        return productService.calculatePrice(this);
-    }
 
     public String getId() {
         return id;

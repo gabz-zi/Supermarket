@@ -13,14 +13,15 @@ public class Main {
 
     public static void main(String[] args) {
         // Create a Shop
-        Shop shop = new Shop("SuperMart", BigDecimal.valueOf(20), BigDecimal.valueOf(50));
-        ProductService productService = new ProductService(shop);
+        Shop shop = new Shop("SuperMart", BigDecimal.valueOf(20), BigDecimal.valueOf(50)
+        , BigDecimal.valueOf(50), 3);
+        ProductService productService = new ProductService();
         ReceiptService receiptService = new ReceiptService(productService);
         CashDesk cashDesk = new CashDesk();
         Cashier cashier = new Cashier("pepo", cashDesk, BigDecimal.TEN);
         ShopService shopService = new ShopService(productService);
         shopService.addCashier(shop, cashier);
-        CustomerService customerService = new CustomerService();
+        CustomerService customerService = new CustomerService(shopService);
         CashDeskService cashDeskService = new CashDeskService();
 
         CashierService cashierService = new CashierService(receiptService, shopService, productService
@@ -42,8 +43,8 @@ public class Main {
 
         // Sell some products
         Customer customer = new Customer("Petio", BigDecimal.valueOf(100));
-        customerService.addToBasket(customer, milk, 2);
-        customerService.addToBasket(customer, shampoo, 1);
+        customerService.addToBasket(shop, customer, milk, 2);
+        customerService.addToBasket(shop, customer, shampoo, 1);
         cashDeskService.addCustomerToQueue(customer, cashDesk);
         Receipt receipt = cashierService.processPurchase(customer, cashier, shop);
 
@@ -79,7 +80,7 @@ public class Main {
             Integer quantity = entry.getValue();
 
             // Assuming Product has a getName() and getPrice() method (you can adjust as per your Product class structure)
-            System.out.println("Product: " + product.getName() + ", Quantity: " + quantity + ", Price: " + product.getSellingPrice(productService));
+            System.out.println("Product: " + product.getName() + ", Quantity: " + quantity + ", Price: " + productService.calculatePrice(shop, product));
         }
 
         System.out.println(String.format("Total payed: %.2f", receiptLoaded.getTotalAmount()));

@@ -1,34 +1,44 @@
 package org.example.models;
 
 import org.example.ProductCategory;
+import org.example.exceptions.InvalidDaysBeforeExpiryDiscountException;
+import org.example.exceptions.InvalidExpiryDiscountException;
+import org.example.exceptions.InvalidMarkupPercentagesException;
+import org.example.exceptions.InvalidShopNameException;
 
 import java.math.BigDecimal;
 import java.util.*;
 
 public class Shop {
     private final String name;
-    private Map<Product, Integer> stock; // Tracks product quantities
-    private final Map<ProductCategory, BigDecimal> markupPercentages;
+    private Map<Product, Integer> stock;
+    private Map<ProductCategory, BigDecimal> markupPercentages;
     private BigDecimal expiryDiscount;
     private int daysBeforeExpiryDiscount;
     private BigDecimal totalIncome = BigDecimal.ZERO;
     private BigDecimal totalDeliveryCosts = BigDecimal.ZERO;
     private List<Cashier> cashiers;
 
-    public Shop(String name, BigDecimal foodMarkup, BigDecimal nonFoodMarkup) {
-        markupPercentages = new EnumMap<>(ProductCategory.class);
-        markupPercentages.put(ProductCategory.FOOD, foodMarkup);
-        markupPercentages.put(ProductCategory.NON_FOOD, nonFoodMarkup);
-        this.expiryDiscount = BigDecimal.valueOf(50); // 50% discount for near-expiry products
-        this.daysBeforeExpiryDiscount = 3; // Discount triggers applies 3 days before expiry
+    public Shop(String name, BigDecimal foodMarkup, BigDecimal nonFoodMarkup, BigDecimal expiryDiscount, int daysBeforeExpiryDiscount) {
+        if (name == null || name.isBlank()) throw new InvalidShopNameException("Shop name cannot be empty.");
+        this.markupPercentages = fillEnumMapForMarkupPercentages(foodMarkup, nonFoodMarkup);
+        this.setExpiryDiscount(expiryDiscount);
+        this.setDaysBeforeExpiryDiscount(daysBeforeExpiryDiscount);
         this.name = name;
         this.stock = new HashMap<>();
         cashiers = new ArrayList<>();
     }
 
-    public void addIncome(BigDecimal amount) { totalIncome = totalIncome.add(amount); }
-    public void addDeliveryCost(BigDecimal cost) { totalDeliveryCosts = totalDeliveryCosts.add(cost); }
-
+    private Map<ProductCategory, BigDecimal> fillEnumMapForMarkupPercentages(BigDecimal foodMarkup, BigDecimal nonFoodMarkup) {
+        if (foodMarkup.compareTo(BigDecimal.ZERO) != 1 || nonFoodMarkup.compareTo(BigDecimal.ZERO) != 1) {
+            throw new InvalidMarkupPercentagesException("Markup for food and non-food" +
+                    "products must be a positive number.");
+        }
+        markupPercentages = new EnumMap<>(ProductCategory.class);
+        markupPercentages.put(ProductCategory.FOOD, foodMarkup);
+        markupPercentages.put(ProductCategory.NON_FOOD, nonFoodMarkup);
+        return markupPercentages;
+    }
     public BigDecimal getMarkup(ProductCategory category) {
         return markupPercentages.get(category);
     }
@@ -71,6 +81,10 @@ public class Shop {
 
 
     public void setDaysBeforeExpiryDiscount(int daysBeforeExpiryDiscount) {
+        if (expiryDiscount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidDaysBeforeExpiryDiscountException("Days before expiry discount is applied" +
+                    " must be a positive number.");
+        }
         this.daysBeforeExpiryDiscount = daysBeforeExpiryDiscount;
     }
 
@@ -83,6 +97,9 @@ public class Shop {
     }
 
     public void setExpiryDiscount(BigDecimal expiryDiscount) {
+        if (expiryDiscount.compareTo(BigDecimal.ZERO) != 1) {
+            throw new InvalidExpiryDiscountException("Expiry discount must be a positive number.");
+        }
         this.expiryDiscount = expiryDiscount;
     }
 }

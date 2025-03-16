@@ -1,5 +1,7 @@
 package org.example.services;
 
+import org.example.exceptions.CustomerNotInQueueException;
+import org.example.exceptions.EmptyCustomersQueue;
 import org.example.models.CashDesk;
 import org.example.models.Cashier;
 import org.example.models.Customer;
@@ -15,12 +17,15 @@ public class CashDeskService {
     }
 
     public Customer nextCustomer(CashDesk cashDesk) {
-        return cashDesk.getQueue().poll();
+        if (!cashDesk.getQueue().isEmpty()) {
+            return cashDesk.getQueue().poll();
+        }
+        throw new EmptyCustomersQueue("There are no more customers in the queue");
     }
 
     public void checkout(CashDesk cashDesk, Customer customer) {
         if (!cashDesk.getQueue().contains(customer)) {
-            throw new IllegalStateException("Customer is not in the queue");
+            throw new CustomerNotInQueueException("Customer is not in the queue");
         }
         cashDesk.getQueue().remove(customer);
     }

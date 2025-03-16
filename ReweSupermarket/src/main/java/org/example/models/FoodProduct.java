@@ -1,6 +1,5 @@
 package org.example.models;
 
-import org.example.exceptions.InvalidFoodProductExpireDateException;
 import org.example.interfaces.Expirable;
 import org.example.ProductCategory;
 import org.example.services.ProductService;
@@ -16,8 +15,6 @@ public class FoodProduct extends Product implements Expirable {
 
     public FoodProduct(String name, BigDecimal basePrice, LocalDate expireDate, ProductService productService) {
         super(name, basePrice, ProductCategory.FOOD);
-        if (expireDate.isBefore(LocalDate.now()))
-            throw new InvalidFoodProductExpireDateException("Cannot create and expired product.");
         this.expireDate = expireDate;
     }
 

@@ -1,9 +1,8 @@
 package org.example.models;
 
-import org.example.services.ReceiptService;
 
+import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.LinkedList;
 import java.util.UUID;
 
 public class CashDesk {
@@ -12,7 +11,7 @@ public class CashDesk {
 
     public CashDesk() {
         this.id = UUID.randomUUID().toString();
-        this.queue = new LinkedList<>();
+        this.queue = new ArrayDeque<>();
     }
 
     public String getId() {

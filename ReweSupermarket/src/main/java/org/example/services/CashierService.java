@@ -30,22 +30,16 @@ public class CashierService {
         if (!shopService.getCashiers(shop).contains(cashier)) {
             throw new CashierNotRealWorkerInShopException("Cashier isn't a worker in that shop.");
         }
-        BigDecimal total = customer.getBasket().entrySet().stream()
-                .map(entry -> {
-                    Product product = entry.getKey();
-                    Integer quantity = entry.getValue();
-                    BigDecimal productPrice = productService.calculatePrice(product);
-                    return productPrice.multiply(BigDecimal.valueOf(quantity));
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal total = receiptService.calculateTotal(shop, customer.getBasket());
         if (!customerService.canAfford(customer, total)) {
             throw new InsufficientFundsException("Customer has insufficient funds.");
         }
         customerService.deduct(customer, total);
         customer.getBasket().forEach((product, quantity) -> shopService.sellProduct(shop, product, quantity));
         cashDeskService.checkout(cashDesk, customer);
-
-        return receiptService.createReceipt(customer, cashier);
+        Receipt issuedReceipt = receiptService.createReceipt(shop, customer, cashier);
+        customer.getBasket().clear();
+        return issuedReceipt;
     }
 }
 

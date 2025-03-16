@@ -1,9 +1,6 @@
 package org.example.services;
 
-import org.example.models.Cashier;
-import org.example.models.Customer;
-import org.example.models.Product;
-import org.example.models.Receipt;
+import org.example.models.*;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -18,8 +15,8 @@ public class ReceiptService {
         this.productService = productService;
     }
 
-    public Receipt createReceipt(Customer customer, Cashier cashier) {
-        BigDecimal totalAmount = calculateTotal(customer.getBasket());
+    public Receipt createReceipt(Shop shop, Customer customer, Cashier cashier) {
+        BigDecimal totalAmount = calculateTotal(shop, customer.getBasket());
         Receipt receipt = new Receipt(customer, cashier.getId(), totalAmount);
         saveToFile(receipt);
         return receipt;
@@ -34,12 +31,13 @@ public class ReceiptService {
         }
     }
 
-    private BigDecimal calculateTotal(Map<Product, Integer> products) {
+    public BigDecimal calculateTotal(Shop shop, Map<Product, Integer> products) {
+        //we calculate total and in the cashierService
         return products.entrySet().stream()
                 .map(entry -> {
                     Product product = entry.getKey();
                     Integer quantity = entry.getValue();
-                    BigDecimal productPrice = productService.calculatePrice(product);
+                    BigDecimal productPrice = productService.calculatePrice(shop, product);
                     return productPrice.multiply(BigDecimal.valueOf(quantity));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

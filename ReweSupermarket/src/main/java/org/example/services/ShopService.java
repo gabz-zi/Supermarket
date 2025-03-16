@@ -25,13 +25,21 @@ public class ShopService {
         }
         shop.getStock().merge(product, quantity, Integer::sum);
         BigDecimal deliveryCost = product.getBasePrice().multiply(BigDecimal.valueOf(quantity));
-        shop.addDeliveryCost(deliveryCost);
+        addDeliveryCost(shop, deliveryCost);
+    } // here the delivery cost is only the basePrice of all products as we supermarkets make giant orders
+    //and get discount on delivery services like free delivery
+
+    private void addDeliveryCost(Shop shop, BigDecimal cost) {
+        shop.setTotalDeliveryCosts(shop.getTotalDeliveryCosts().add(cost));
     }
 
-    private boolean isInStock(Shop shop, Product product, int quantity) {
+    public boolean isInStock(Shop shop, Product product, int quantity) {
         return shop.getStock().getOrDefault(product, 0) >= quantity;
     }
 
+    public void addIncome(Shop shop, BigDecimal amount) {
+        shop.setTotalIncome(shop.getTotalIncome().add(amount));
+    }
 
     public void sellProduct(Shop shop, Product product, int quantity) {
         if (!isInStock(shop, product, quantity)) {
@@ -40,8 +48,8 @@ public class ShopService {
         if (product instanceof Expirable && (productService.isExpired((Expirable) product))) {
             throw new ExpiredProductException("Cannot sell expired product: " + product.getName());
         }
-        BigDecimal totalPrice = product.getSellingPrice(productService).multiply(BigDecimal.valueOf(quantity));
-        shop.addIncome(totalPrice);
+        BigDecimal totalPrice = productService.calculatePrice(shop, product).multiply(BigDecimal.valueOf(quantity));
+        addIncome(shop, totalPrice);
 
         shop.getStock().put(product, shop.getStock().get(product) - quantity);
     }
@@ -49,7 +57,8 @@ public class ShopService {
     public BigDecimal calculateProfit(Shop shop) {
         return shop.getTotalIncome()
                 .subtract(shop.getTotalDeliveryCosts())
-                .subtract(calculateExpensesForSalaries(shop));
+                .subtract(calculateExpensesForSalaries(shop))
+                .abs();
     }
 
     public BigDecimal calculateExpensesForSalaries(Shop shop) {

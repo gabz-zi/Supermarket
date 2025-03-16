@@ -1,5 +1,6 @@
 package org.example.services;
 
+import org.example.exceptions.SellingExpiredProductException;
 import org.example.interfaces.Expirable;
 import org.example.models.Product;
 import org.example.models.Shop;
@@ -9,13 +10,10 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 public class ProductService {
-    private final Shop shop;
-
-    public ProductService(Shop shop) {
-        this.shop = shop;
+    public ProductService() {
     }
 
-    public BigDecimal calculatePrice(Product product) {
+    public BigDecimal calculatePrice(Shop shop, Product product) {
         BigDecimal basePrice = product.getBasePrice();
         BigDecimal markupPercentage = shop.getMarkup(product.getCategory());
         BigDecimal markupAmount = basePrice.multiply(markupPercentage.divide(BigDecimal.valueOf(100)));
@@ -26,10 +24,10 @@ public class ProductService {
             Expirable expirableProduct = (Expirable) product;
 
             if (isExpired(expirableProduct)) {
-                throw new IllegalStateException("Product is expired and cannot be sold!");
+                throw new SellingExpiredProductException("Product is expired and cannot be sold!");
             }
 
-            if (isCloseToExpiry(expirableProduct)) {
+            if (isCloseToExpiry(shop, expirableProduct)) {
                 BigDecimal discountPercentage = shop.getExpiryDiscount();
                 BigDecimal discountAmount = finalPrice.multiply(discountPercentage.divide(BigDecimal.valueOf(100)));
                 finalPrice = finalPrice.subtract(discountAmount);
@@ -38,7 +36,7 @@ public class ProductService {
         return finalPrice;
     }
 
-    public boolean isCloseToExpiry(Expirable product) {
+    private boolean isCloseToExpiry(Shop shop, Expirable product) {
         long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), product.getExpireDate());
         return daysLeft <= shop.getDaysBeforeExpiryDiscount();
     }
