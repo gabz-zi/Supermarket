@@ -22,7 +22,7 @@ public class ReceiptService {
         return receipt;
     }
 
-    private void saveToFile(Receipt receipt) {
+    public void saveToFile(Receipt receipt) {
         String filename = "receipt_" + receipt.getId() + ".txt";
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(receipt);

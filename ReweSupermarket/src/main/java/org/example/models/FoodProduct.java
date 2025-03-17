@@ -23,4 +23,6 @@ public class FoodProduct extends Product implements Expirable {
         return this.expireDate;
     }
 
+
+
 }

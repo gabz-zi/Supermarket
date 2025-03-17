@@ -17,7 +17,7 @@ public class Shop {
     private int daysBeforeExpiryDiscount;
     private BigDecimal totalIncome = BigDecimal.ZERO;
     private BigDecimal totalDeliveryCosts = BigDecimal.ZERO;
-    private List<Cashier> cashiers;
+    private Set<Cashier> cashiers;
 
     public Shop(String name, BigDecimal foodMarkup, BigDecimal nonFoodMarkup, BigDecimal expiryDiscount, int daysBeforeExpiryDiscount) {
         if (name == null || name.isBlank()) throw new InvalidShopNameException("Shop name cannot be empty.");
@@ -26,7 +26,11 @@ public class Shop {
         this.setDaysBeforeExpiryDiscount(daysBeforeExpiryDiscount);
         this.name = name;
         this.stock = new HashMap<>();
-        cashiers = new ArrayList<>();
+        cashiers = new HashSet<>();
+        //HashSet doesn't allow duplicates → No need to manually check if a cashier is already in the shop when calling the shpService add method.
+        //Faster add() and contains() checks → O(1) in HashSet.
+        //Iteration for salary calculations is still O(n) → No performance loss compared to if we've used a list.
+        //since we don't need to keep an order, we use just HashSet
     }
 
     private Map<ProductCategory, BigDecimal> fillEnumMapForMarkupPercentages(BigDecimal foodMarkup, BigDecimal nonFoodMarkup) {
@@ -88,11 +92,11 @@ public class Shop {
         this.daysBeforeExpiryDiscount = daysBeforeExpiryDiscount;
     }
 
-    public List<Cashier> getCashiers() {
+    public Set<Cashier> getCashiers() {
         return cashiers;
     }
 
-    public void setCashiers(List<Cashier> cashiers) {
+    public void setCashiers(Set<Cashier> cashiers) {
         this.cashiers = cashiers;
     }
 

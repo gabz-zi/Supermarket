@@ -9,6 +9,7 @@ import org.example.services.ProductService;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Product implements Serializable {
@@ -50,5 +51,16 @@ public class Product implements Serializable {
         this.basePrice = basePrice;
     }
 
+    @Override
+    public boolean equals(Object o) { //we need equals and hashCode as products are stored in a hashMap
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

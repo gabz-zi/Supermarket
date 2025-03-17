@@ -1,5 +1,6 @@
 package org.example.services;
 
+import org.example.exceptions.CustomerIsJumpingTheQueueException;
 import org.example.exceptions.CustomerNotInQueueException;
 import org.example.exceptions.EmptyCustomersQueue;
 import org.example.models.CashDesk;
@@ -26,6 +27,9 @@ public class CashDeskService {
     public void checkout(CashDesk cashDesk, Customer customer) {
         if (!cashDesk.getQueue().contains(customer)) {
             throw new CustomerNotInQueueException("Customer is not in the queue");
+        }
+        if (!cashDesk.getQueue().isEmpty() && !cashDesk.getQueue().peek().equals(customer)) {
+            throw new CustomerIsJumpingTheQueueException("Customer must wait for their turn.");
         }
         cashDesk.getQueue().remove(customer);
     }

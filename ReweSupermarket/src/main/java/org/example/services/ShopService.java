@@ -1,5 +1,6 @@
 package org.example.services;
 
+import org.example.exceptions.CashierAlreadyHiredException;
 import org.example.exceptions.ExpiredProductException;
 import org.example.exceptions.OutOfStockException;
 import org.example.interfaces.Expirable;
@@ -9,6 +10,7 @@ import org.example.models.Shop;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 
 public class ShopService {
@@ -68,10 +70,14 @@ public class ShopService {
     }
 
     public void addCashier(Shop shop, Cashier cashier) {
-        shop.getCashiers().add(cashier);
+        if (!shop.getCashiers().add(cashier)) { // `add()` returns false if cashier already exists
+            throw new CashierAlreadyHiredException("Cashier " + cashier.getName() + " is already working at " + shop.getName());
+        }
     }
 
-    public List<Cashier> getCashiers(Shop shop) {
+    public Set<Cashier> getCashiers(Shop shop) {
         return shop.getCashiers();
     }
 }
+
+
